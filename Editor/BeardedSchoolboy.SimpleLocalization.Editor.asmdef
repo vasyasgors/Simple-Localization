@@ -1,0 +1,19 @@
+{
+    "name": "SimpleLocalization.Editor",
+    "rootNamespace": "SimpleLocalization.Editor",
+    "references": [
+        "GUID:b03d0465f774bf2489df7e55b1c29b14",
+        "GUID:478a2357cc57436488a56e564b08d223"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
