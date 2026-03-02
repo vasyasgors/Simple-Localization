@@ -1,7 +1,7 @@
 {
   "name": "com.beardedschoolboy.simplelocalization",
   "displayName": "Simple Localization",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "unity": "2020.0",
   "description": "Yandex Game Sdk",
   "dependencies": {

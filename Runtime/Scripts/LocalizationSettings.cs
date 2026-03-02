@@ -52,25 +52,21 @@ namespace Assets.SimpleLocalization.Scripts
 
         private static LocalizationSettings LoadSettings()
         {
-            var allSettings = Resources.LoadAll<LocalizationSettings>("");
+            // Ищем во всей папке Assets
+            string[] guids = AssetDatabase.FindAssets("t:LocalizationSettings");
 
-            if (allSettings.Length > 0)
+            if (guids.Length > 0)
             {
-                // Возвращаем первый найденный (или можно добавить логику выбора)
-
-                return allSettings[0];
+                // Берем первый найденный
+                string path = AssetDatabase.GUIDToAssetPath(guids[0]);
+                return AssetDatabase.LoadAssetAtPath<LocalizationSettings>(path);
             }
 
 #if UNITY_EDITOR
-            // Создаем новый asset в стандартном месте (можно изменить путь)
-            const string path = "Assets/Resources/Localization/LocalizationSettings.asset";
-            var settings = CreateInstance<LocalizationSettings>();
-            AssetDatabase.CreateAsset(settings, path);
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh();
-            return settings;
+            Debug.LogError("[Localization] LocalizationSettings not found!");
+            return null;
 #else
-    throw new Exception("Localization settings not found in any Resources folder");
+    throw new Exception("Localization settings not found in project");
 #endif
         }
 
