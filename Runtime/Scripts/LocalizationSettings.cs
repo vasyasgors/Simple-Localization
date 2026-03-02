@@ -8,7 +8,6 @@ using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
 
-
 #if UNITY_EDITOR
 
 using UnityEditor;
@@ -18,14 +17,12 @@ using Unity.EditorCoroutines.Editor;
 
 namespace Assets.SimpleLocalization.Scripts
 {
-    [CreateAssetMenu(fileName = "Localization Settings", menuName = "◆ Simple Localization/Create Settings")]
+    [CreateAssetMenu(fileName = "LocalizationSettings", menuName = "◆ Simple Localization/Settings")]
     public class LocalizationSettings : ScriptableObject
     {
-        /// <summary>
-        /// Table Id on Google Sheets.
-        /// Let's say your table has the following URL https://docs.google.com/spreadsheets/d/1RvKY3VE_y5FPhEECCa5dv4F7REJ7rBtGzQg9Z_B_DE4/edit#gid=331980525
-        /// In this case, Table Id is "1RvKY3VE_y5FPhEECCa5dv4F7REJ7rBtGzQg9Z_B_DE4" and Sheet Id is "331980525" (the gid parameter).
-        /// </summary>
+
+        private const string path = @"Assets/SimpleLocalization/Resources/LocalizationSettings.asset";
+
         public string TableId;
 
         public List<Sheet> Sheets = new();
@@ -46,28 +43,20 @@ namespace Assets.SimpleLocalization.Scripts
             }
         }
 
-        public static event Action OnRunEditor = () => {};
+        public static event Action OnRunEditor = () => { };
 
         private static LocalizationSettings _instance;
 
         private static LocalizationSettings LoadSettings()
         {
-            // Ищем во всей папке Assets
-            string[] guids = AssetDatabase.FindAssets("t:LocalizationSettings");
+            var settings = Resources.Load<LocalizationSettings>(Path.GetFileNameWithoutExtension(path));
 
-            if (guids.Length > 0)
-            {
-                // Берем первый найденный
-                string path = AssetDatabase.GUIDToAssetPath(guids[0]);
-                return AssetDatabase.LoadAssetAtPath<LocalizationSettings>(path);
-            }
+            if (settings != null)
+                return settings;
+            else
+                Debug.LogError("Localization settings not found!");
 
-#if UNITY_EDITOR
-            Debug.LogError("[Localization] LocalizationSettings not found!");
-            return null;
-#else
-    throw new Exception("Localization settings not found in project");
-#endif
+            return settings;
         }
 
 #if UNITY_EDITOR
@@ -82,9 +71,9 @@ namespace Assets.SimpleLocalization.Scripts
 
         public void DownloadGoogleSheets(Action callback = null)
         {
-           EditorCoroutineUtility.StartCoroutineOwnerless(DownloadGoogleSheetsCoroutine(callback));
+            EditorCoroutineUtility.StartCoroutineOwnerless(DownloadGoogleSheetsCoroutine(callback));
         }
-        
+
         public IEnumerator DownloadGoogleSheetsCoroutine(Action callback = null, bool silent = false)
         {
             if (string.IsNullOrEmpty(TableId) || Sheets.Count == 0)
@@ -112,7 +101,7 @@ namespace Assets.SimpleLocalization.Scripts
                     yield break;
                 }
             }
-            
+
             Timestamp = DateTime.UtcNow;
 
             if (!silent) ClearSaveFolder();
@@ -125,7 +114,7 @@ namespace Assets.SimpleLocalization.Scripts
                 Debug.Log($"Downloading <color=grey>{url}</color>");
 
                 var request = UnityWebRequest.Get(url);
-                var progress = (float) (i + 1) / Sheets.Count;
+                var progress = (float)(i + 1) / Sheets.Count;
 
                 if (EditorUtility.DisplayCancelableProgressBar("Downloading sheets...", $"[{(int)(100 * progress)}%] [{i + 1}/{Sheets.Count}] Downloading {sheet.Name}...", progress))
                 {
@@ -201,7 +190,7 @@ namespace Assets.SimpleLocalization.Scripts
 
         public void ResolveGoogleSheets()
         {
-           EditorCoroutineUtility.StartCoroutineOwnerless(ResolveGoogleSheetsCoroutine());
+            EditorCoroutineUtility.StartCoroutineOwnerless(ResolveGoogleSheetsCoroutine());
 
             IEnumerator ResolveGoogleSheetsCoroutine()
             {
@@ -235,7 +224,6 @@ namespace Assets.SimpleLocalization.Scripts
                     }
 
                     var sheetsDict = JsonConvert.DeserializeObject<Dictionary<string, long>>(request.downloadHandler.text);
-                    
 
                     if (sheetsDict == null) throw new NullReferenceException(nameof(sheetsDict));
 
@@ -330,6 +318,6 @@ namespace Assets.SimpleLocalization.Scripts
             }
         }
 
-        #endif
+#endif
     }
 }
